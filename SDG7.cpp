@@ -69,3 +69,29 @@ public:
         return demand; 
     }
 };
+
+class SmartGrid {
+    SolarPanel* solar;
+    Battery* battery;
+    PowerGrid* grid;
+    vector<Appliance*> appliances;
+public:
+    SmartGrid(SolarPanel* s, Battery* b, PowerGrid* g) : solar(s), battery(b), grid(g) {}
+
+    void addAppliance(Appliance* app) {
+        appliances.push_back(app);
+    }
+
+    void simulateEnergyFlow() {
+        double totalDemand = 0;
+        cout << "\n--- Appliance Power Demand ---\n";
+        
+        for (auto* app : appliances) {
+            totalDemand += app->consumePower(); 
+        }
+
+        cout << "\n--- Energy Allocation (SDG 7 Priority) ---\n";
+        cout << "Total Demand: " << totalDemand << " kW\n";
+
+
+    
