@@ -93,5 +93,53 @@ public:
         cout << "\n--- Energy Allocation (SDG 7 Priority) ---\n";
         cout << "Total Demand: " << totalDemand << " kW\n";
 
+        double remainingDemand = totalDemand;
+        double solarOutput = solar->getOutput();
 
-    
+        if (solarOutput >= remainingDemand) {
+            cout << "-> Solar Panel supplied all " << remainingDemand << " kW. (100% Clean Energy)\n";
+            remainingDemand = 0;
+        } else {
+            cout << "-> Solar Panel supplied " << solarOutput << " kW.\n";
+            remainingDemand -= solarOutput;
+        }
+
+        if (remainingDemand > 0) {
+            double batterySupplied = battery->discharge(remainingDemand);
+            cout << "-> Battery supplied " << batterySupplied << " kW. (Remaining charge: " << battery->getCharge() << " kWh)\n";
+            remainingDemand -= batterySupplied;
+        }
+
+        if (remainingDemand > 0) {
+            double gridSupplied = grid->drawPower(remainingDemand);
+            cout << "-> Power Grid supplied the remaining " << gridSupplied << " kW. (Billable Grid usage)\n";
+            remainingDemand = 0; 
+        }
+
+        cout << "\n[Status] Energy allocation complete. Smart Grid stable.\n";
+    }
+};
+
+int main() {
+    cout << "=========================================================\n";
+    cout << "   SDG 7: Smart Home Energy Grid Simulation System\n";
+    cout << "=========================================================\n";
+
+    SolarPanel mySolar(3.0);
+    Battery myBattery(10.0, 2.5);
+    PowerGrid mainGrid;
+
+    SmartGrid homeGrid(&mySolar, &myBattery, &mainGrid);
+
+    HeavyAppliance ac("Air Conditioner", 2.5);
+    LightAppliance lights("LED Lighting System", 0.5);
+    HeavyAppliance heater("Water Heater", 4.0);
+
+    homeGrid.addAppliance(&ac);
+    homeGrid.addAppliance(&lights);
+    homeGrid.addAppliance(&heater);
+
+    homeGrid.simulateEnergyFlow();
+
+    return 0;
+}
